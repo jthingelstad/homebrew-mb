@@ -418,7 +418,7 @@ class Mb < Formula
     backend_sources.mkpath
     build_inputs.each do |name|
       input = resource(name)
-      backend_sources.install input.cached_download => File.basename(input.url)
+      FileUtils.cp input.cached_download, backend_sources/File.basename(input.url)
     end
     ENV["PIP_NO_INDEX"] = "1"
     ENV["PIP_FIND_LINKS"] = backend_sources.to_s

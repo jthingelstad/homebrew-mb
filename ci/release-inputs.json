@@ -4,7 +4,7 @@
     "commit": "34263c38b5e76037b8d71ab0409427e6fefe82a8",
     "url": "https://codeload.github.com/jthingelstad/mb/tar.gz/34263c38b5e76037b8d71ab0409427e6fefe82a8",
     "sha256": "4a448c09acbe21024f05b1c6b26e107f43252045b5411e16b2f01e09dcee82ee",
-    "formula_sha256": "c69249bd2006feaba6589047406b32214783dce94cee20f6d151a9cc28906e5d"
+    "formula_sha256": "eb94e2e404fd00ee77d600c33a4d7300970a4463ad1d94b2b8c35e832bc9de4b"
   },
   "rc4": {
     "name": "mb",
@@ -13,7 +13,7 @@
     "url": "https://codeload.github.com/jthingelstad/mb/tar.gz/0185fae5164ffa1d030bc012557de9f876762da8",
     "sha256": "274e3ff7cb4cee03ee2249233070b26c807d1620d50b9b56f863c7d5faa2de79",
     "runtime_and_build_dependency_changes_from_rc3": false,
-    "formula_sha256": "610c033415623f571193c444e9023001631190856f34f639f2bfaeed166cbea3"
+    "formula_sha256": "70b6a9d2f995ccd56aaff4587d29eb8d8c81a84f3a7af9c7e2c128588789cec8"
   },
   "cargo_vendor": {
     "registry_archives_verified": 589,
@@ -24,5 +24,5 @@
     "cargo_build_or_hooks_executed": false
   },
   "homebrew_commit": "570982948a8a194f0f42f43f4a5bce2d1c9f64cb",
-  "status": "prepared, unexecuted; trust/runner/publication approval pending"
+  "status": "candidate; cache-preserving staging correction, cold-build verification pending"
 }

@@ -18,6 +18,8 @@ import subprocess
 import sys
 import tarfile
 
+from bottle_metadata import reviewed_recipe
+
 ROOT = Path(__file__).resolve().parents[1]
 TARGET = "jthingelstad/mb/mb"
 TAP = "jthingelstad/mb"
@@ -44,6 +46,19 @@ def write_json(path: Path, value) -> None:
     path.write_text(json.dumps(value, indent=2, sort_keys=True) + "\n")
 
 
+def recipe_bytes(kind: str, inputs: dict) -> bytes:
+    path = ROOT / ("Formula/mb.rb" if kind == "stable" else "ci/mb-rc4.rb")
+    if kind == "rc4":
+        require(digest(path) == inputs[kind]["formula_sha256"], "RC4 recipe changed")
+        return path.read_bytes()
+    return reviewed_recipe(
+        path,
+        inputs[kind]["formula_sha256"],
+        ROOT / "ci/public-release.json",
+        inputs["stable"]["commit"],
+    )
+
+
 def validate_inputs() -> dict:
     inputs = read_json(ROOT / "ci/release-inputs.json")
     expected = os.environ.get("EXPECTED_FORMULA_SHA256", "")
@@ -55,11 +70,8 @@ def validate_inputs() -> dict:
         expected == inputs["stable"]["formula_sha256"],
         "Dispatch hash differs from the input manifest",
     )
-    for kind, file in [("stable", "Formula/mb.rb"), ("rc4", "ci/mb-rc4.rb")]:
-        require(
-            digest(ROOT / file) == inputs[kind]["formula_sha256"],
-            f"{kind} recipe changed",
-        )
+    for kind in ["stable", "rc4"]:
+        recipe_bytes(kind, inputs)
     return inputs
 
 
@@ -258,9 +270,14 @@ class Runner:
             os.environ["GITHUB_SHA"],
         )
         require(
-            digest(self.tap_path / "Formula/mb.rb")
-            == self.inputs["stable"]["formula_sha256"],
+            digest(self.tap_path / "Formula/mb.rb") == digest(ROOT / "Formula/mb.rb"),
             "Tapped recipe differs from the reviewed checkout",
+        )
+        reviewed_recipe(
+            self.tap_path / "Formula/mb.rb",
+            self.inputs["stable"]["formula_sha256"],
+            ROOT / "ci/public-release.json",
+            self.inputs["stable"]["commit"],
         )
         names = [entry["name"] for entry in expected]
         actual = json.loads(self.brew("info", "--json=v2", *names, capture=True))[
@@ -316,12 +333,7 @@ class Runner:
 
     def recipe(self, kind: str) -> None:
         require(self.tap_path is not None, "Tap has not been prepared")
-        path = ROOT / ("Formula/mb.rb" if kind == "stable" else "ci/mb-rc4.rb")
-        require(
-            digest(path) == self.inputs[kind]["formula_sha256"],
-            "Recipe hash changed before execution",
-        )
-        shutil.copyfile(path, self.tap_path / "Formula/mb.rb")
+        (self.tap_path / "Formula/mb.rb").write_bytes(recipe_bytes(kind, self.inputs))
 
     def installed(self, version: str, poured: bool) -> Path:
         keg = Path(self.brew("--prefix", TARGET, capture=True)).resolve()
@@ -447,7 +459,7 @@ print(len(json.loads(sys.argv[1])))
             "cellar": entry["bottle"]["cellar"],
             "bytes": bottle.stat().st_size,
         }
-        shutil.copyfile(ROOT / "Formula/mb.rb", ARTIFACTS / "reviewed-mb.rb")
+        (ARTIFACTS / "reviewed-mb.rb").write_bytes(recipe_bytes("stable", self.inputs))
         shutil.copyfile(
             ROOT / "ci/release-inputs.json", ARTIFACTS / "release-inputs.json"
         )

@@ -7,6 +7,12 @@ class Mb < Formula
   version "2.0.0"
   sha256 "4a448c09acbe21024f05b1c6b26e107f43252045b5411e16b2f01e09dcee82ee"
   license "MIT"
+  bottle do
+    root_url "https://github.com/jthingelstad/homebrew-mb/releases/download/mb-v2.0.0"
+    rebuild 1
+    sha256 cellar: :any, arm64_tahoe: "52f92c7dee24a5eda8f1fb0e8d19df29bc6521a9bb0c72be07030244ec62e934"
+  end
+
   deny_network_access! [:build, :test]
 
   depends_on :macos => :tahoe

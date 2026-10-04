@@ -1,0 +1,38 @@
+name: Verify published MB bottle install
+on:
+  workflow_dispatch:
+    inputs:
+      formula_sha256:
+        description: Exact published formula SHA256
+        required: true
+        type: string
+      bottle_sha256:
+        description: Exact validated published bottle SHA256
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: mb-public-install-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  install:
+    runs-on: macos-26
+    timeout-minutes: 20
+    env:
+      EXPECTED_FORMULA_SHA256: ${{ inputs.formula_sha256 }}
+      EXPECTED_BOTTLE_SHA256: ${{ inputs.bottle_sha256 }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - name: Public tap URL install, exact bottle and installed checks
+        run: python3 ci/public-install.py
+      - name: Retain public install and trust cleanup evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: mb-public-install-evidence
+          path: artifacts/public-install-evidence.json
+          if-no-files-found: error
+          retention-days: 3

@@ -125,7 +125,7 @@ class Runner:
                 "HOMEBREW_NO_ANALYTICS": "1",
                 "HOMEBREW_NO_INSTALL_CLEANUP": "1",
                 "HOMEBREW_NO_ASK": "1",
-                "HOMEBREW_NO_INSTALL_UPGRADE": "1",
+                "HOMEBREW_NO_INSTALLED_DEPENDENTS_CHECK": "1",
                 "HOMEBREW_NO_ENV_HINTS": "1",
             }
         )

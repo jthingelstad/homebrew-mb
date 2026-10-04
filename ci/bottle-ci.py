@@ -195,7 +195,14 @@ class Runner:
         self.run(
             "git", "-C", str(core_path), "fetch", "--depth=1", "origin", core_commit
         )
-        self.run("git", "-C", str(core_path), "checkout", "--detach", core_commit)
+        self.evidence["runner_core_changes"] = self.run(
+            "git", "-C", str(core_path), "diff", "--stat", capture=True
+        )
+        # Hosted images can patch core formula files during image preparation.
+        # This disposable runner must consume the exact frozen official tree.
+        self.run(
+            "git", "-C", str(core_path), "checkout", "--force", "--detach", core_commit
+        )
         require(
             self.run("git", "-C", str(core_path), "rev-parse", "HEAD", capture=True)
             == core_commit,

@@ -290,6 +290,10 @@ class Runner:
         self.evidence["sdk"] = self.run(
             "/usr/bin/xcrun", "--show-sdk-version", capture=True
         )
+        print(
+            "::notice title=MB verification::Frozen official native inputs installed and verified",
+            flush=True,
+        )
 
     def recipe(self, kind: str) -> None:
         require(self.tap_path is not None, "Tap has not been prepared")
@@ -356,16 +360,28 @@ print(len(json.loads(sys.argv[1])))
                 "tab": tab,
             }
         )
+        print(
+            f"::notice title=MB verification::Installed {version} source/runtime/CLI/MCP/media/linkage checks passed (poured={poured})",
+            flush=True,
+        )
         return python
 
     def build(self) -> None:
         self.recipe("rc4")
+        # Virtualenv resource staging can fetch lazily inside install. Download
+        # every checksummed resource before entering the network-denied sandbox.
+        self.brew("fetch", "--build-from-source", "--retry", TARGET)
+        print(
+            "::notice title=MB verification::RC4 sources fetched and checksummed before sandboxed compilation",
+            flush=True,
+        )
         self.brew("install", "--build-bottle", TARGET)
         python = self.installed(self.inputs["rc4"]["version"], poured=False)
         state = self.work / "synthetic-user-state"
         self.run(str(python), str(ROOT / "ci/synthetic-state.py"), str(state))
         before = {p.name: digest(p) for p in state.iterdir() if p.is_file()}
         self.recipe("stable")
+        self.brew("fetch", "--build-from-source", "--retry", TARGET)
         # Homebrew upgrade inherits built_bottle from the predecessor's receipt.
         self.brew("upgrade", "--build-from-source", TARGET)
         python = self.installed(self.inputs["stable"]["version"], poured=False)

@@ -103,6 +103,7 @@ class Runner:
             "GH_TOKEN",
             "GITHUB_TOKEN",
             "HOMEBREW_INTERNAL_ALLOW_PACKAGES_FROM_PATHS",
+            "HOMEBREW_DEVELOPER",
         ]:
             self.env.pop(key, None)
         for key, relative in {
@@ -172,6 +173,23 @@ class Runner:
             "Homebrew framework pin failed",
         )
         self.evidence["homebrew_commit"] = commit
+        # Exercise the full pinned shell/Ruby launcher before expensive builds.
+        # The documented switch survives brew.sh; its internal counterpart does
+        # not. This pure query loads no formula and persists no developer setting.
+        self.env["HOMEBREW_DEVELOPER"] = "1"
+        try:
+            path_guard = self.brew(
+                "ruby",
+                "-e",
+                "puts Homebrew::EnvConfig.forbid_packages_from_paths?",
+                capture=True,
+            )
+        finally:
+            self.env.pop("HOMEBREW_DEVELOPER", None)
+        require(
+            path_guard == "false", "Explicit local-package path ban requires review"
+        )
+        self.evidence["local_bottle_loader_probe_passed"] = True
         self.evidence["brew_config"] = self.brew("config", capture=True)
         baseline = json.loads(self.brew("trust", "--json=v1", capture=True))
         require(
@@ -481,13 +499,13 @@ print(len(json.loads(sys.argv[1])))
                 "Embedded recipe changed",
             )
         self.recipe("stable")
-        # Current Homebrew refuses local bottle loaders by default. Permit only
-        # this SHA/embedded-recipe-verified local bottle invocation, then restore
-        # the default path guard before any installed tests or later commands.
-        local_path_gate = "HOMEBREW_INTERNAL_ALLOW_PACKAGES_FROM_PATHS"
+        # Embedded bottle Ruby uses a simulated Cellar path; whole-bottle and
+        # embedded-recipe hashes above authenticate it. The documented developer
+        # switch permits this one exact local load, not a persistent setting.
+        local_path_gate = "HOMEBREW_DEVELOPER"
         self.env[local_path_gate] = "1"
         try:
-            self.brew("install", str(bottle))
+            self.brew("install", "--force-bottle", str(bottle))
         finally:
             self.env.pop(local_path_gate, None)
             self.evidence["local_path_gate_restored"] = True

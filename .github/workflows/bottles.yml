@@ -56,6 +56,7 @@ jobs:
       - name: Fresh bottle-only pour, relocation and installed tests
         run: python3 ci/bottle-ci.py pour
       - name: Retain fresh-pour evidence
+        if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: mb-macos26-arm64-pour-evidence

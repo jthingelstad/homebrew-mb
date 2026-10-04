@@ -102,6 +102,7 @@ class Runner:
             "PYTHONHOME",
             "GH_TOKEN",
             "GITHUB_TOKEN",
+            "HOMEBREW_INTERNAL_ALLOW_PACKAGES_FROM_PATHS",
         ]:
             self.env.pop(key, None)
         for key, relative in {
@@ -480,7 +481,16 @@ print(len(json.loads(sys.argv[1])))
                 "Embedded recipe changed",
             )
         self.recipe("stable")
-        self.brew("install", str(bottle))
+        # Current Homebrew refuses local bottle loaders by default. Permit only
+        # this SHA/embedded-recipe-verified local bottle invocation, then restore
+        # the default path guard before any installed tests or later commands.
+        local_path_gate = "HOMEBREW_INTERNAL_ALLOW_PACKAGES_FROM_PATHS"
+        self.env[local_path_gate] = "1"
+        try:
+            self.brew("install", str(bottle))
+        finally:
+            self.env.pop(local_path_gate, None)
+            self.evidence["local_path_gate_restored"] = True
         self.installed("2.0.0", poured=True)
         self.evidence["bottle"] = info
         self.evidence["checks"].append(

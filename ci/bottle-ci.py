@@ -121,6 +121,7 @@ class Runner:
         self.env.update(
             {
                 "HOMEBREW_NO_AUTO_UPDATE": "1",
+                "HOMEBREW_NO_INSTALL_FROM_API": "1",
                 "HOMEBREW_NO_ANALYTICS": "1",
                 "HOMEBREW_NO_INSTALL_CLEANUP": "1",
                 "HOMEBREW_NO_ASK": "1",
@@ -176,6 +177,37 @@ class Runner:
             all(not entries for entries in baseline.values()),
             "Isolated trust scope is not empty",
         )
+        expected = read_json(ROOT / "ci/native-inputs.json")
+        core_commits = {entry["tap_git_head"] for entry in expected}
+        require(
+            len(core_commits) == 1,
+            "Native inputs require one frozen official core commit",
+        )
+        core_commit = core_commits.pop()
+        require(
+            bool(re.fullmatch(r"[0-9a-f]{40}", core_commit)),
+            "Invalid official core commit",
+        )
+        # The public API can rebuild a bottle without changing its source version.
+        # Consume the frozen official formula tree, rather than moving API data.
+        self.brew("tap", "--force", "homebrew/core")
+        core_path = Path(self.brew("--repository", "homebrew/core", capture=True))
+        self.run(
+            "git", "-C", str(core_path), "fetch", "--depth=1", "origin", core_commit
+        )
+        self.run("git", "-C", str(core_path), "checkout", "--detach", core_commit)
+        require(
+            self.run("git", "-C", str(core_path), "rev-parse", "HEAD", capture=True)
+            == core_commit,
+            "Official core formula tree pin failed",
+        )
+        for entry in expected:
+            source = core_path / "Formula" / entry["name"][0] / (entry["name"] + ".rb")
+            require(
+                digest(source) == entry["formula_checksum"]["sha256"],
+                f"Frozen native formula differs: {entry['name']}",
+            )
+        self.evidence["homebrew_core_commit"] = core_commit
         self.brew("tap", TAP)
         self.tap_path = Path(self.brew("--repository", TAP, capture=True))
         self.run(
@@ -200,7 +232,6 @@ class Runner:
             == self.inputs["stable"]["formula_sha256"],
             "Tapped recipe differs from the reviewed checkout",
         )
-        expected = read_json(ROOT / "ci/native-inputs.json")
         names = [entry["name"] for entry in expected]
         actual = json.loads(self.brew("info", "--json=v2", *names, capture=True))[
             "formulae"

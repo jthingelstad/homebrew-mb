@@ -202,9 +202,13 @@ class Runner:
             "Official core formula tree pin failed",
         )
         for entry in expected:
-            source = core_path / "Formula" / entry["name"][0] / (entry["name"] + ".rb")
+            sources = list((core_path / "Formula").glob("*/" + entry["name"] + ".rb"))
             require(
-                digest(source) == entry["formula_checksum"]["sha256"],
+                len(sources) == 1,
+                f"Expected one frozen native formula: {entry['name']}",
+            )
+            require(
+                digest(sources[0]) == entry["formula_checksum"]["sha256"],
                 f"Frozen native formula differs: {entry['name']}",
             )
         self.evidence["homebrew_core_commit"] = core_commit

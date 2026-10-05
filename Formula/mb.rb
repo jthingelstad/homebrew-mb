@@ -3,21 +3,13 @@ class Mb < Formula
 
   desc "Micro.blog command-line client and MCP server for agents"
   homepage "https://github.com/jthingelstad/mb"
-  url "https://github.com/jthingelstad/mb/archive/refs/tags/v2.1.0.tar.gz"
-  sha256 "a21bbc1a756df8905c30b5225edd9017d4c72a6a5fce459efef5c074c3406bf2"
+  url "https://github.com/jthingelstad/mb/archive/refs/tags/v2.2.0.tar.gz"
+  sha256 "522f897c9db7bb452551da44a8cb940bfab62a24a086ca9343ca89162760f00b"
   license "MIT"
 
   livecheck do
     url :stable
     strategy :github_latest
-  end
-
-  bottle do
-    root_url "https://github.com/jthingelstad/homebrew-tap/releases/download/mb-2.1.0"
-    sha256 cellar: :any_skip_relocation, arm64_tahoe:   "ab3f7dea60813a1e1f88a573c2051bde5765a8d6b0540acffe8423ac11c4f524"
-    sha256 cellar: :any_skip_relocation, arm64_sequoia: "24d421a4bbfeb8fbf4fab26e12f2022994811222cfb46f7cf1721332f71aa2c4"
-    sha256 cellar: :any_skip_relocation, arm64_linux:   "18a3dfa415c70418eeb6fa334a096c19125efcddd32e2cf16afaff7a2a641a4c"
-    sha256 cellar: :any_skip_relocation, x86_64_linux:  "1fb27e3e1d40920d831991a018c0520babbb0e697e7799f9b4007d1d4c95a0eb"
   end
 
   depends_on "certifi" => :no_linkage
@@ -193,6 +185,7 @@ class Mb < Formula
     assert_equal "mb #{version}", shell_output("#{bin}/mb --version").strip
     assert_match "SESSION START", shell_output("#{bin}/mb guide")
     assert_match "No token configured", shell_output("#{bin}/mb whoami 2>&1", 1)
+    assert_match "No token given", shell_output("#{bin}/mb auth 2>&1 </dev/null", 1)
     refute_path_exists testpath/".config/mb/config.toml"
 
     (testpath/"mcp_check.py").write <<~PYTHON

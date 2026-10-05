@@ -13,7 +13,7 @@ class Mb < Formula
   end
 
   bottle do
-    root_url "https://github.com/jthingelstad/homebrew-mb/releases/download/mb-2.0.1"
+    root_url "https://github.com/jthingelstad/homebrew-tap/releases/download/mb-2.0.1"
     sha256 cellar: :any_skip_relocation, arm64_tahoe:   "3718f0c90375571359e80f15aa4d795d7d76a9268cbb24a9164ac6d1ddcd7b78"
     sha256 cellar: :any_skip_relocation, arm64_sequoia: "f04bb334212d13fc6f42087f6869747b134bc28cd4c54142387e800f283b8cea"
     sha256 cellar: :any_skip_relocation, arm64_linux:   "a996c46408cc08e3e5eee4ef81b8c7b89f9c55ebc4e7cc1357bb082d4b6bd292"

@@ -12,6 +12,14 @@ class Mb < Formula
     strategy :github_latest
   end
 
+  bottle do
+    root_url "https://github.com/jthingelstad/homebrew-tap/releases/download/mb-2.2.1"
+    sha256 cellar: :any_skip_relocation, arm64_tahoe:   "a3576c461dd49ddc7b2598b018b8ae326a0b55476efe93952c0ca8e8af128b89"
+    sha256 cellar: :any_skip_relocation, arm64_sequoia: "b6d058c2cd81acab75a85666033bfee0541b85d66571f05da58bd08b26053123"
+    sha256 cellar: :any_skip_relocation, arm64_linux:   "0cacac1d9187f5b1c5bda766dcd9952e22bdf2e80e39cc6dc0bca36e6cb53704"
+    sha256 cellar: :any_skip_relocation, x86_64_linux:  "6de8252f283a13b84cf70ad1f1a36654a2d87833eac1cc210e1fc81ef7464eb9"
+  end
+
   depends_on "certifi" => :no_linkage
   depends_on "cryptography" => :no_linkage
   depends_on "pydantic" => :no_linkage

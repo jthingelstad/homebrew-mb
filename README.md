@@ -20,12 +20,14 @@ Other platforms Homebrew supports can build from source, which takes a minute or
 
 ## Set up
 
-Create an app token on Micro.blog under **Account → Edit Apps**, then:
+Then sign in and check the install:
 
 ```sh
-pbpaste | mb auth -     # reads the token from stdin, keeping it out of shell history
-mb doctor               # checks the install, PATH, config, token and blog
+mb auth      # links the app token page, asks for the token (hidden) and your blog
+mb doctor    # checks the install, PATH, config, token and blog
 ```
+
+In scripts, pipe the token instead: `pbpaste | mb auth -`.
 
 `mb doctor` warns when another `mb`, for example an older uv or pipx install,
 comes ahead of Homebrew's in your `PATH`.

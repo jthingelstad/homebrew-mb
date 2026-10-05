@@ -175,8 +175,8 @@ class Mb < Formula
 
   def caveats
     <<~EOS
-      Sign in with a micro.blog app token, then check the install:
-        mb auth -
+      Sign in (it asks for a micro.blog app token and your blog), then check the install:
+        mb auth
         mb doctor
 
       To use mb with Claude Code:

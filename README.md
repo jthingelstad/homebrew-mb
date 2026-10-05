@@ -1,4 +1,4 @@
-# MB Homebrew tap
+# jthingelstad Homebrew tap
 
 [MB](https://github.com/jthingelstad/mb) is a Micro.blog command-line client
 and local MCP server for agents.
@@ -6,7 +6,7 @@ and local MCP server for agents.
 ## Install
 
 ```sh
-brew install jthingelstad/mb/mb
+brew install jthingelstad/tap/mb
 ```
 
 MB is pure Python. It runs on Homebrew's `python@3.14` and uses Homebrew's own
@@ -50,7 +50,7 @@ clients or publish anything. Each of those is a step you take.
 ```sh
 brew upgrade mb
 brew uninstall mb
-brew untap jthingelstad/mb
+brew untap jthingelstad/tap
 ```
 
 Uninstalling leaves your configuration and receipt store in `~/.config/mb/`.
@@ -59,4 +59,4 @@ Uninstalling leaves your configuration and receipt store in `~/.config/mb/`.
 
 - [MB release notes](https://github.com/jthingelstad/mb/releases)
 - The 2.0.0 bottle and its verification evidence are kept on the
-  [mb-v2.0.0 release](https://github.com/jthingelstad/homebrew-mb/releases/tag/mb-v2.0.0)
+  [mb-v2.0.0 release](https://github.com/jthingelstad/homebrew-tap/releases/tag/mb-v2.0.0)

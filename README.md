@@ -1,78 +1,62 @@
 # MB Homebrew tap
 
-MB is a Micro.blog command-line client and local MCP server designed for agents.
-This tap packages MB **2.0.0** with the MCP extra in a private Python environment.
-
-The verified distribution targets **Apple Silicon on macOS 26** with Homebrew's
-default **`/opt/homebrew`** prefix. macOS 27, Intel, Linux and other prefixes have
-not been certified by these tests.
+[MB](https://github.com/jthingelstad/mb) is a Micro.blog command-line client
+and local MCP server for agents.
 
 ## Install
 
-On the verified platform:
-
 ```sh
-brew tap jthingelstad/mb
-brew trust --formula jthingelstad/mb/mb
-brew install --force-bottle jthingelstad/mb/mb
+brew install jthingelstad/mb/mb
 ```
 
-The formula-specific trust step permits Homebrew to load this tap's Ruby recipe.
-`--force-bottle` requires the published prebuilt package and prevents a source
-build from masking a bottle problem. Check `brew list --versions jthingelstad/mb/mb`
-for the installed version and `command -v mb` for the executable your shell uses.
-An existing uv or pipx installation can take precedence in `PATH`.
+MB is pure Python. It runs on Homebrew's `python@3.14` and uses Homebrew's own
+`pydantic`, `rpds-py`, `cryptography` and `certifi`, so nothing is compiled
+during install. Bottles are built for:
 
-Authentication and MCP client registration are separate setup steps. Installation
-does not read or copy credentials, change MB configuration or receipt stores,
-register clients, change cron, or publish Micro.blog content. See the
-[source project](https://github.com/jthingelstad/mb),
-[2.0 migration guide](https://github.com/jthingelstad/mb/blob/v2.0.0/docs/migration-2.0.md)
-and [MCP setup/contracts](https://github.com/jthingelstad/mb/blob/v2.0.0/docs/mcp.md).
+- macOS 15 (Sequoia) and later on Apple Silicon
+- Linux on x86_64 and arm64
 
-## Verified release
+Other platforms Homebrew supports can build from source, which takes a minute or two.
 
-- [MB 2.0.0 source/wheel release](https://github.com/jthingelstad/mb/releases/tag/v2.0.0)
-- [Exact bottle, checksums and retained evidence](https://github.com/jthingelstad/homebrew-mb/releases/tag/mb-v2.0.0)
-- [Cold source installation, RC4-to-stable upgrade and fresh bottle pour](https://github.com/jthingelstad/homebrew-mb/actions/runs/37242182828)
-- [Published tap/URL bottle installation and installed tests](https://github.com/jthingelstad/homebrew-mb/actions/runs/37243818182)
+## Set up
 
-Source commit: `34263c38b5e76037b8d71ab0409427e6fefe82a8`.
-The bottle has the actual `arm64_tahoe` tag, verified rebuild/cellar metadata,
-and SHA256 `52f92c7dee24a5eda8f1fb0e8d19df29bc6521a9bb0c72be07030244ec62e934`.
+Create an app token on Micro.blog under **Account → Edit Apps**, then:
 
-The installed tests cover CLI help/guidance and no-auth refusal; a real local
-stdio MCP handshake with all 23 typed tools; JPEG/WebP support; native-order
-catchup and acknowledgement with nonmonotonic IDs; synthetic media-to-draft
-operations, receipt replay and human CLI recovery; source/dependency hashes and
-native linkage. The upgrade preserves synthetic external profiles, checkpoints
-and applied/unknown receipts byte for byte. These tests use fake transport and
-state and perform no live Micro.blog writes or acknowledgements.
+```sh
+pbpaste | mb auth -     # reads the token from stdin, keeping it out of shell history
+mb doctor               # checks the install, PATH, config, token and blog
+```
 
-## Build and trust boundaries
+`mb doctor` warns when another `mb`, for example an older uv or pipx install,
+comes ahead of Homebrew's in your `PATH`.
 
-Workflows run only when manually dispatched, on standard disposable macOS 26
-Apple Silicon runners, with `contents: read` and pinned GitHub actions. They
-cannot publish releases, push commits or approve pull requests. There is no
-automatic release updater or publisher.
+## Use with Claude
 
-The source build freezes the Homebrew framework and official core formula tree,
-verifies native source/bottle versions and hashes, and records the installed
-dependency graph, compiler and SDK. Python build isolation resolves checksummed
-local source archives under constraints; Cargo resolves checksummed vendored
-sources offline with lock enforcement. Native CMake and Ninja avoid nested
-backend downloads. The build/test sandbox denies network access after resource
-fetching. This is tested input control, not a claim of byte-identical builds.
+Claude Code:
 
-The fresh-pour gate verifies same-run provenance, archive SHA and the embedded
-frozen recipe before allowing one local-bottle loader invocation; it restores
-Homebrew's path guard before tests. The public-install gate uses the normal
-remote bottle URL and cannot fall back to source compilation. Published bottle
-metadata must be canonical; removing it must recover the exact frozen recipe
-body and hash.
+```sh
+claude mcp add mb -- mb mcp --consumer claude-code --read-only
+```
 
-Each job uses an isolated configuration and grants trust to this single formula.
-Cleanup revokes the grant and verifies an empty trust scope on success or
-failure. Temporary Actions artifacts expire after three days; release evidence
-is retained with the public bottle. No paid runners or automated write-token
-permissions are configured.
+Leave out `--read-only` once you want the agent to be able to post. For Claude
+Desktop and other clients, see the
+[MCP guide](https://github.com/jthingelstad/mb/blob/main/docs/mcp.md).
+
+Installing MB does not read credentials, change configuration, register MCP
+clients or publish anything. Each of those is a step you take.
+
+## Upgrade and uninstall
+
+```sh
+brew upgrade mb
+brew uninstall mb
+brew untap jthingelstad/mb
+```
+
+Uninstalling leaves your configuration and receipt store in `~/.config/mb/`.
+
+## Releases
+
+- [MB release notes](https://github.com/jthingelstad/mb/releases)
+- The 2.0.0 bottle and its verification evidence are kept on the
+  [mb-v2.0.0 release](https://github.com/jthingelstad/homebrew-mb/releases/tag/mb-v2.0.0)

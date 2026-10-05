@@ -3,21 +3,13 @@ class Mb < Formula
 
   desc "Micro.blog command-line client and MCP server for agents"
   homepage "https://github.com/jthingelstad/mb"
-  url "https://github.com/jthingelstad/mb/archive/refs/tags/v2.2.0.tar.gz"
-  sha256 "522f897c9db7bb452551da44a8cb940bfab62a24a086ca9343ca89162760f00b"
+  url "https://github.com/jthingelstad/mb/archive/refs/tags/v2.2.1.tar.gz"
+  sha256 "1640f07cccc1e32826a0c9adca4d096e5d5792758cef13d8eadf532ce2f6751b"
   license "MIT"
 
   livecheck do
     url :stable
     strategy :github_latest
-  end
-
-  bottle do
-    root_url "https://github.com/jthingelstad/homebrew-tap/releases/download/mb-2.2.0"
-    sha256 cellar: :any_skip_relocation, arm64_tahoe:   "09acd1be5786a220295c9aed148e7b185defbfc30ecfbe28bc3cdeff96cf1810"
-    sha256 cellar: :any_skip_relocation, arm64_sequoia: "0ba4a7a6b85e326bb1dc74e4c96e645f8c0a76667877c5027a3921344ced343d"
-    sha256 cellar: :any_skip_relocation, arm64_linux:   "4bd0a96164431facf78d12c7f4cff1b4df359ff2dcc9501196b19ec61a53ea4c"
-    sha256 cellar: :any_skip_relocation, x86_64_linux:  "f22eb966c0c06ca1a129363739e04640f386a750d8e15d2185c14ed2ad138a68"
   end
 
   depends_on "certifi" => :no_linkage
